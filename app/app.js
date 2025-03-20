@@ -28,6 +28,22 @@ app.get("/db_test", function(req, res) {
     });
 });
 
+app.get("/rooms", function (req, res) {
+    const sql = "SELECT * FROM rooms";
+
+    db.query(sql)
+        .then(results => {
+            // Render the rooms.pug template with room data
+            res.render('rooms', { rooms: results });
+        })
+        .catch(err => {
+            console.error("Error fetching rooms:", err);
+            res.status(500).send("Error fetching rooms");
+        });
+});
+
+
+
 // Create a route for /goodbye
 // Responds to a 'GET' request
 app.get("/goodbye", function(req, res) {
