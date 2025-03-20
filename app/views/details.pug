@@ -1,46 +1,53 @@
 doctype html
 html
-  head
-    title= room.type + " - Hotel Management System"
-    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
-    style.
-      .room-image {
-        width: 100%;
-        height: 400px;
-        object-fit: cover;
-        border-radius: 10px;
-      }
+    head
+        title= room.type + " - Hotel Management System"
+        link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
+        style.
+            .room-image {
+                width: 100%;
+                height: 400px;
+                object-fit: cover;
+                border-radius: 10px;
+            }
 
-  body
-    include _navbar.pug
+    body
+        include _navbar.pug
 
-    .container.mt-5
-      .row
-        .col-md-6
-          img.room-image(src= room.image_url ? `../${room.image_url}` : '../default_room_image.jpg', alt=room.type)
-        
-        .col-md-6
-          h2= room.type
-          p.lead= room.description
+        .container.mt-5
+            .row
+                .col-md-6
+                    // Room image, check if the image URL exists; if not, show the default image.
+                    img.room-image(src= room.image_url ? `../${room.image_url}` : '../default_room_image.jpg', alt=room.type)
 
-          p
-            strong Price: 
-            span.text-success &nbsp;£#{room.price}
+                .col-md-6
+                    // Room type and description
+                    h2= room.type
+                    p.lead= room.description
 
-          p
-            strong Location: 
-            span.text-info &nbsp;#{room.location}
+                    // Room price, displayed in GBP
+                    p
+                        strong Price: 
+                        span.text-success &nbsp;£#{room.price}
 
-          p
-            strong Status: 
-            span.text-primary &nbsp;#{room.status}
+                    // Room location
+                    p
+                        strong Location: 
+                        span.text-info &nbsp;#{room.location}
 
-          if room.status === 'Available'
-            a.btn.btn-success(href=`/book/${room.room_id}`) Book Now
-          else
-            button.btn.btn-secondary(disabled) Not Available
+                    // Room status (Available or Booked)
+                    p
+                        strong Status: 
+                        span.text-primary &nbsp;#{room.status}
 
-      .mt-4
-        a.btn.btn-outline-primary(href='/rooms') ← Back to Rooms
+                    // Show the "Book Now" button if the room is available
+                    if room.status === 'Available'
+                        a.btn.btn-success(href=`/book/${room.room_id}`) Book Now
+                    else
+                        button.btn.btn-secondary(disabled) Not Available
 
-    script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js')
+            .mt-4
+                // Link to go back to the list of rooms
+                a.btn.btn-outline-primary(href='/rooms') ← Back to Rooms
+
+        script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js')
