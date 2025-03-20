@@ -80,6 +80,11 @@ app.get("/rooms/:room_id", function (req, res) {
         });
 });
 
+// Create a route for root - /
+app.get("/contact", function(req, res) {
+    res.render("contactus");
+});
+
 
 
 
