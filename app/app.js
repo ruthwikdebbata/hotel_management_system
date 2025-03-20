@@ -62,6 +62,23 @@ app.get("/rooms", function (req, res) {
         });
 });
 
+app.get("/rooms/:room_id", function (req, res) {
+    const roomId = req.params.room_id;
+    const sql = "SELECT * FROM rooms WHERE room_id = ?";
+
+    db.query(sql, [roomId])
+        .then(results => {
+            if (results.length > 0) {
+                res.render("details", { room: results[0] });
+            } else {
+                res.status(404).send("Room not found");
+            }
+        })
+        .catch(err => {
+            console.error("Error fetching room details:", err);
+            res.status(500).send("Error fetching room details");
+        });
+});
 
 
 
