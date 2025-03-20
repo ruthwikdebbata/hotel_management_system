@@ -86,7 +86,19 @@ app.get("/contact", function(req, res) {
 });
 
 
+// Create a route for root - /
+app.get("/services", function(req, res) {
+    res.render("commingsoon");
+});
+// Create a route for root - /
+app.get("/reservations", function(req, res) {
+    res.render("commingsoon");
+});
 
+// Create a route for root - /
+app.get("/login", function(req, res) {
+    res.render("commingsoon");
+});
 
 // Create a route for /goodbye
 // Responds to a 'GET' request
