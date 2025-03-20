@@ -29,11 +29,31 @@ app.get("/db_test", function(req, res) {
 });
 
 app.get("/rooms", function (req, res) {
-    const sql = "SELECT * FROM rooms";
+    let { roomType, priceRange, status } = req.query;
+    let sql = "SELECT * FROM rooms WHERE 1=1";
+    let params = [];
 
-    db.query(sql)
+    // Filtering by Room Type
+    if (roomType) {
+        sql += " AND type = ?";
+        params.push(roomType);
+    }
+
+    // Filtering by Price Range
+    if (priceRange) {
+        let [minPrice, maxPrice] = priceRange.split("-");
+        sql += " AND price BETWEEN ? AND ?";
+        params.push(minPrice, maxPrice);
+    }
+
+    // Filtering by Status (Available / Booked)
+    if (status) {
+        sql += " AND status = ?";
+        params.push(status);
+    }
+
+    db.query(sql, params)
         .then(results => {
-            // Render the rooms.pug template with room data
             res.render('rooms', { rooms: results });
         })
         .catch(err => {
@@ -41,6 +61,8 @@ app.get("/rooms", function (req, res) {
             res.status(500).send("Error fetching rooms");
         });
 });
+
+
 
 
 
