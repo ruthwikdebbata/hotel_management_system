@@ -33,7 +33,7 @@ CREATE TABLE `bookings` (
   `room_id` int DEFAULT NULL,
   `check_in` date NOT NULL,
   `check_out` date NOT NULL,
-  `total_price` decimal(10,2) NOT NULL,
+  `total_price` decimal(10,2) NOT NULL, 
   `status` enum('Pending','Confirmed','Cancelled') DEFAULT 'Pending',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
