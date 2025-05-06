@@ -41,10 +41,11 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
-// Show login form
+// GET  /admin/login
 app.get('/admin/login', (req, res) => {
-    res.render('admin-login', { error: null });
+    res.render('admin-login', { error: null, email: '' });
   });
+  
   
   // Handle login POST
   app.post('/admin/login', async (req, res) => {

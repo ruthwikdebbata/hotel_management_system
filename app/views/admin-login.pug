@@ -1,0 +1,34 @@
+doctype html
+html
+  head
+    title Admin Login – Hotel Management System
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
+  body.bg-light
+    .container.d-flex.justify-content-center.align-items-center.min-vh-100
+      .card.shadow-sm.w-100(style='max-width: 400px')
+        .card-body
+          h3.card-title.text-center.mb-4 Admin Login
+          if error
+            .alert.alert-danger.text-center= error
+          form(action='/admin/login' method='POST')
+            .mb-3
+              label.form-label(for='email') Email address
+              input#email.form-control(
+                type='email'
+                name='email'
+                required
+                placeholder='Enter email'
+                value=email || ''
+              )
+            .mb-3
+              label.form-label(for='password') Password
+              input#password.form-control(
+                type='password'
+                name='password'
+                required
+                placeholder='Enter password'
+              )
+            button.btn.btn-primary.w-100(type='submit') Sign In
+    script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js')
