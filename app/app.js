@@ -36,6 +36,35 @@ app.use((req, res, next) => {
     next();
   });
 
+  // Protect all admin routes with a simple check
+function requireAdmin(req, res, next) {
+    if (!req.session.adminId) {
+      return res.redirect('/admin/login');
+    }
+    next();
+  }
+
+  // Admin dashboard
+app.get('/admin/dashboard', requireAdmin, async (req, res) => {
+    try {
+      // example: load total bookings count and rooms count
+      const [{ count: bookingCount }] = await db.query(
+        'SELECT COUNT(*) AS count FROM bookings'
+      );
+      const [{ count: roomCount }] = await db.query(
+        'SELECT COUNT(*) AS count FROM rooms'
+      );
+  
+      res.render('admin-dashboard', {
+        bookingCount,
+        roomCount
+      });
+    } catch (err) {
+      console.error('Error loading admin dashboard:', err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+
 // Home page
 app.get('/', (req, res) => {
     res.render('index');

@@ -1,0 +1,24 @@
+nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+  .container-fluid
+    //-- Brand
+    a.navbar-brand(href='/admin/dashboard') Hotel Admin
+
+    //-- Toggler for mobile
+    button.navbar-toggler(type='button', data-bs-toggle='collapse', data-bs-target='#adminNav', aria-controls='adminNav', aria-expanded='false', aria-label='Toggle navigation')
+      span.navbar-toggler-icon
+
+    //-- Collapsible content
+    #adminNav.collapse.navbar-collapse
+      ul.navbar-nav.me-auto.mb-2.mb-lg-0
+        li.nav-item
+          a.nav-link(href='/admin/dashboard') Dashboard
+        li.nav-item
+          a.nav-link(href='/admin/rooms') Manage Rooms
+        li.nav-item
+          a.nav-link(href='/admin/bookings') Manage Bookings
+        li.nav-item
+          a.nav-link(href='/admin/users') Manage Users
+      //-- Logout on right
+      ul.navbar-nav.ms-auto
+        li.nav-item
+          a.nav-link.text-danger(href='/admin/logout') Logout
