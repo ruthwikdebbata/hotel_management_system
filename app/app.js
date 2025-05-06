@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const { Booking } = require('./models/booking');
+const { Admin } = require('./models/admin');
 
 // Create express app
 const app = express();
@@ -39,6 +40,32 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
     res.render('index');
 });
+
+// Show login form
+app.get('/admin/login', (req, res) => {
+    res.render('admin-login', { error: null });
+  });
+  
+  // Handle login POST
+  app.post('/admin/login', async (req, res) => {
+    const { email, password } = req.body;
+    try {
+      const admin = await Admin.findByEmail(email);
+      if (!admin) {
+        return res.render('admin-login', { error: 'Invalid email or password' });
+      }
+      const ok = await admin.authenticate(password);
+      if (!ok) {
+        return res.render('admin-login', { error: 'Invalid email or password' });
+      }
+      // success!
+      req.session.adminId = admin.id;
+      res.redirect('/admin/dashboard');
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Server error');
+    }
+  });
 
 // Registration form
 app.get('/register', (req, res) => {
