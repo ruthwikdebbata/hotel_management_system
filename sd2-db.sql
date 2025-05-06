@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: db
--- Generation Time: Mar 20, 2025 at 08:38 PM
+-- Generation Time: May 06, 2025 at 09:50 PM
 -- Server version: 8.2.0
 -- PHP Version: 8.2.8
 
@@ -24,6 +24,25 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `admins`
+--
+
+CREATE TABLE `admins` (
+  `id` int NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `admins`
+--
+
+INSERT INTO `admins` (`id`, `email`, `password`) VALUES
+(1, 'admin@gmail.com', '$2b$10$1eZpfPYXHNOtaDtmW3NpxemC1u6KYt2uNOoa0VkI2ixEMpDV6.Y2y');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `bookings`
 --
 
@@ -33,7 +52,7 @@ CREATE TABLE `bookings` (
   `room_id` int DEFAULT NULL,
   `check_in` date NOT NULL,
   `check_out` date NOT NULL,
-  `total_price` decimal(10,2) NOT NULL, 
+  `total_price` decimal(10,2) NOT NULL,
   `status` enum('Pending','Confirmed','Cancelled') DEFAULT 'Pending',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -47,7 +66,8 @@ INSERT INTO `bookings` (`booking_id`, `user_id`, `room_id`, `check_in`, `check_o
 (2, 2, 2, '2025-04-12', '2025-04-14', 360.00, 'Confirmed', '2025-03-20 20:38:01'),
 (3, 3, 5, '2025-05-01', '2025-05-07', 1140.00, 'Pending', '2025-03-20 20:38:01'),
 (4, 4, 4, '2025-06-15', '2025-06-20', 1250.00, 'Confirmed', '2025-03-20 20:38:01'),
-(5, 5, 1, '2025-07-01', '2025-07-03', 240.00, 'Cancelled', '2025-03-20 20:38:01');
+(5, 5, 1, '2025-07-01', '2025-07-03', 240.00, 'Cancelled', '2025-03-20 20:38:01'),
+(6, 6, 1, '2025-05-08', '2025-05-09', 120.00, 'Pending', '2025-05-06 21:03:34');
 
 -- --------------------------------------------------------
 
@@ -86,7 +106,7 @@ CREATE TABLE `rooms` (
 
 INSERT INTO `rooms` (`room_id`, `room_number`, `type`, `price`, `status`, `description`, `image_url`) VALUES
 (1, '101', 'Single', 120.00, 'Available', 'Cozy single room in a central London hotel.', 'single_room.jpg'),
-(2, '202', 'Double', 180.00, 'Available', 'Spacious double room with city views.', 'double_room.jpg'),
+(2, '202', 'Double', 180.00, 'Available', 'Spacious double room with city views.', 'double_room.webp'),
 (3, '303', 'Suite', 350.00, 'Available', 'Luxury suite with a private balcony.', 'suite_room.jpg'),
 (4, '404', 'Deluxe', 250.00, 'Available', 'Deluxe room with premium amenities.', 'deluxe_room.jpg'),
 (5, '505', 'Double', 190.00, 'Available', 'Elegant double room near Hyde Park.', 'double_room_2.jpg');
@@ -102,6 +122,8 @@ CREATE TABLE `users` (
   `name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `phone` varchar(20) NOT NULL,
+  `contactNumber` varchar(20) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `role` enum('admin','customer') DEFAULT 'customer',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
@@ -111,16 +133,23 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `name`, `email`, `phone`, `password`, `role`, `created_at`) VALUES
-(1, 'Amit Sharma', 'amit.sharma@example.com', '+91 9876543210', 'password123', 'customer', '2025-03-20 20:37:37'),
-(2, 'Priya Patel', 'priya.patel@example.com', '+91 8765432109', 'securepass', 'customer', '2025-03-20 20:37:37'),
-(3, 'Rajesh Kumar', 'rajesh.kumar@example.com', '+91 9988776655', 'rajpass456', 'customer', '2025-03-20 20:37:37'),
-(4, 'Neha Verma', 'neha.verma@example.com', '+91 8877665544', 'nehapass789', 'customer', '2025-03-20 20:37:37'),
-(5, 'Vikram Rao', 'vikram.rao@example.com', '+91 7766554433', 'vikrampass101', 'customer', '2025-03-20 20:37:37');
+INSERT INTO `users` (`user_id`, `name`, `email`, `phone`, `contactNumber`, `address`, `password`, `role`, `created_at`) VALUES
+(1, 'Amit Sharma', 'amit.sharma@example.com', '+91 9876543210', NULL, NULL, 'password123', 'customer', '2025-03-20 20:37:37'),
+(2, 'Priya Patel', 'priya.patel@example.com', '+91 8765432109', NULL, NULL, 'securepass', 'customer', '2025-03-20 20:37:37'),
+(3, 'Rajesh Kumar', 'rajesh.kumar@example.com', '+91 9988776655', NULL, NULL, 'rajpass456', 'customer', '2025-03-20 20:37:37'),
+(4, 'Neha Verma', 'neha.verma@example.com', '+91 8877665544', NULL, NULL, 'nehapass789', 'customer', '2025-03-20 20:37:37'),
+(5, 'Vikram Rao', 'vikram.rao@example.com', '+91 7766554433', NULL, NULL, 'vikrampass101', 'customer', '2025-03-20 20:37:37');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `admins`
+--
+ALTER TABLE `admins`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `bookings`
@@ -155,10 +184,16 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `admins`
+--
+ALTER TABLE `admins`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `booking_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `contact_us`
@@ -176,7 +211,7 @@ ALTER TABLE `rooms`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `user_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
