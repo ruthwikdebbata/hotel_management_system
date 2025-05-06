@@ -1,0 +1,58 @@
+doctype html
+html
+  head
+    title Manage Bookings – Hotel Admin
+    meta(charset='utf-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
+  body.bg-light
+    include _admin_navbar.pug
+
+    .container.mt-5
+      h2.mb-4 Manage Bookings
+
+      if bookings.length === 0
+        .alert.alert-info No bookings found.
+      else
+        .table-responsive
+          table.table.table-striped
+            thead
+              tr
+                th ID
+                th User
+                th Room #
+                th Type
+                th Check-In
+                th Check-Out
+                th Nights
+                th Total (£)
+                th Status
+                th Actions
+            tbody
+              each b in bookings
+                - const nights = Math.round((new Date(b.check_out) - new Date(b.check_in)) / (1000*60*60*24))
+                tr
+                  td= b.booking_id
+                  td= b.user_email
+                  td= b.room_number
+                  td= b.room_type
+                  td= b.check_in
+                  td= b.check_out
+                  td= nights
+                  td= b.total_price.toFixed(2)
+                  td
+                    if b.status === 'Confirmed'
+                      span.badge.bg-success Confirmed
+                    else if b.status === 'Pending'
+                      span.badge.bg-warning.text-dark Pending
+                    else if b.status === 'Cancelled'
+                      span.badge.bg-danger Cancelled
+                  td
+                    //- Example: allow cancelling a pending booking
+                    if b.status === 'Pending'
+                      form(action=`/admin/bookings/${b.booking_id}/cancel` method='POST' style='display:inline')
+                        button.btn.btn-sm.btn-danger(type='submit') Cancel
+                    else
+                      em N/A
+
+    script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js')

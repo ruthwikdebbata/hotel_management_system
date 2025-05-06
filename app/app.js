@@ -551,6 +551,36 @@ app.get('/book/:room_id', (req, res) => {
     }
   });
 
+
+  app.get('/admin/bookings', requireAdmin, async (req, res) => {
+    try {
+      const sql = `
+        SELECT
+          b.booking_id,
+          b.check_in,
+          b.check_out,
+          b.total_price,
+          b.status,
+          u.email       AS user_email,
+          r.room_number,
+          r.type        AS room_type
+        FROM bookings b
+        JOIN users  u ON b.user_id = u.user_id
+        JOIN rooms  r ON b.room_id = r.room_id
+        ORDER BY b.check_in DESC
+      `;
+      const bookings = await db.query(sql);
+  
+      // turn total_price into a Number so .toFixed works
+      bookings.forEach(b => { b.total_price = parseFloat(b.total_price); });
+  
+      res.render('admin-bookings', { bookings });
+    } catch (err) {
+      console.error('Error loading bookings:', err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+  
 // Start server
 app.listen(3000, () => {
     console.log('Server running at http://127.0.0.1:3000/');
