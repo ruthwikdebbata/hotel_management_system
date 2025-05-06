@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const { Booking } = require('./models/booking');
 const { Admin } = require('./models/admin');
 
+
 // Create express app
 const app = express();
 
@@ -97,6 +98,136 @@ app.get('/admin/login', (req, res) => {
     }
   });
 
+// GET /admin/rooms — list all rooms
+app.get('/admin/rooms', requireAdmin, async (req, res) => {
+    try {
+      const rooms = await db.query('SELECT * FROM rooms ORDER BY room_number');
+      res.render('admin-rooms', { rooms });
+    } catch (err) {
+      console.error('Error loading rooms:', err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+// SHOW “New Room” form
+app.get('/admin/rooms/new', requireAdmin, (req, res) => {
+    res.render('admin-room-form', {
+      formTitle: 'Add New Room',
+      action: '/admin/rooms/create',
+      room: {},
+      errors: {}
+    });
+  });
+  
+  // CREATE a room
+  app.post('/admin/rooms/create', requireAdmin, async (req, res) => {
+    const { room_number, type, price, status, description, image_url } = req.body;
+    const errors = {};
+    if (!room_number) errors.room_number = 'Required';
+    if (!type)        errors.type        = 'Required';
+    if (!price || isNaN(price)) errors.price = 'Must be a number';
+  
+    if (Object.keys(errors).length) {
+      return res.render('admin-room-form', {
+        formTitle: 'Add New Room',
+        action: '/admin/rooms/create',
+        room: req.body,
+        errors
+      });
+    }
+  
+    try {
+      await db.query(
+        `INSERT INTO rooms
+           (room_number, type, price, status, description, image_url)
+         VALUES (?,?,?,?,?,?)`,
+        [room_number, type, price, status||'Available', description, image_url]
+      );
+      res.redirect('/admin/rooms');
+    } catch (err) {
+      console.error(err);
+      errors.general = err.code==='ER_DUP_ENTRY'
+        ? 'Room number already exists'
+        : 'Database error';
+      res.render('admin-room-form', {
+        formTitle: 'Add New Room',
+        action: '/admin/rooms/create',
+        room: req.body,
+        errors
+      });
+    }
+  });
+  
+  // SHOW “Edit Room” form
+  app.get('/admin/rooms/:id/edit', requireAdmin, async (req, res) => {
+    try {
+      const rows = await db.query(
+        'SELECT * FROM rooms WHERE room_id = ?',
+        [req.params.id]
+      );
+      if (!rows.length) return res.status(404).send('Not found');
+  
+      const room = { ...rows[0], price: parseFloat(rows[0].price) };
+      res.render('admin-room-form', {
+        formTitle: `Edit Room #${room.room_number}`,
+        action: `/admin/rooms/${room.room_id}/update`,
+        room,
+        errors: {}
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+  
+  //  UPDATE a room
+  app.post('/admin/rooms/:id/update', requireAdmin, async (req, res) => {
+    const { room_number, type, price, status, description, image_url } = req.body;
+    const errors = {};
+    if (!room_number) errors.room_number = 'Required';
+    if (!type)        errors.type        = 'Required';
+    if (!price || isNaN(price)) errors.price = 'Must be a number';
+  
+    if (Object.keys(errors).length) {
+      req.body.room_id = req.params.id;
+      return res.render('admin-room-form', {
+        formTitle: `Edit Room #${req.body.room_number}`,
+        action: `/admin/rooms/${req.params.id}/update`,
+        room: req.body,
+        errors
+      });
+    }
+  
+    try {
+      await db.query(
+        `UPDATE rooms
+           SET room_number = ?, type = ?, price = ?, status = ?, description = ?, image_url = ?
+         WHERE room_id = ?`,
+        [room_number, type, price, status, description, image_url, req.params.id]
+      );
+      res.redirect('/admin/rooms');
+    } catch (err) {
+      console.error(err);
+      errors.general = 'Database error';
+      req.body.room_id = req.params.id;
+      res.render('admin-room-form', {
+        formTitle: `Edit Room #${req.body.room_number}`,
+        action: `/admin/rooms/${req.params.id}/update`,
+        room: req.body,
+        errors
+      });
+    }
+  });
+  
+  // DELETE a room
+  app.post('/admin/rooms/:id/delete', requireAdmin, async (req, res) => {
+    try {
+      await db.query('DELETE FROM rooms WHERE room_id = ?', [req.params.id]);
+      res.redirect('/admin/rooms');
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
 // Registration form
 app.get('/register', (req, res) => {
     res.render('register');

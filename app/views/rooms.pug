@@ -57,7 +57,11 @@ html
           each room in rooms
             .col-md-4
               .card.mb-4
-                img.card-img-top(src=room.image_url || 'default_room_image.jpg', alt=room.type)
+                img.card-img-top(
+                  src= room.image_url || 'https://via.placeholder.com/200x200?text=No+Image',
+                  alt= room.type
+                )
+
                 .card-body
                   h5.card-title= room.type
                   p.card-text= room.description

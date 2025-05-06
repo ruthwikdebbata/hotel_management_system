@@ -1,0 +1,73 @@
+doctype html
+html
+  head
+    title #{formTitle} – Hotel Admin
+    meta(charset='utf-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
+  body.bg-light
+    include _admin_navbar.pug
+
+    .container.mt-4
+      h2.mb-4= formTitle
+
+      if errors.general
+        .alert.alert-danger= errors.general
+
+      form(method='POST', action=action)
+        .mb-3
+          label.form-label(for='room_number') Room Number
+          input#room_number.form-control(
+            type='text',
+            name='room_number',
+            required,
+            value=room.room_number || ''
+          )
+          if errors.room_number
+            .text-danger= errors.room_number
+
+        .mb-3
+          label.form-label(for='type') Type
+          select#type.form-select(name='type' required)
+            - const types = ['Single','Double','Suite','Deluxe']
+            each t in types
+              option(
+                value=t 
+                selected=(room.type===t)
+              )= t
+          if errors.type
+            .text-danger= errors.type
+
+        .mb-3
+          label.form-label(for='price') Price (£)
+          input#price.form-control(
+            type='number',
+            name='price',
+            step='0.01',
+            required,
+            value=(room.price!=null? room.price : '')
+          )
+          if errors.price
+            .text-danger= errors.price
+
+        .mb-3
+          label.form-label(for='status') Status
+          select#status.form-select(name='status')
+            - const statuses = ['Available','Booked','Maintenance']
+            each s in statuses
+              option(
+                value=s 
+                selected=(room.status===s)
+              )= s
+
+        .mb-3
+          label.form-label(for='description') Description
+          textarea#description.form-control(name='description')= room.description || ''
+
+        .mb-3
+          label.form-label(for='image_url') Image URL
+          input#image_url.form-control(type='text', name='image_url', value=room.image_url||'')
+
+        button.btn.btn-primary(type='submit') Save
+
+    script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js')
