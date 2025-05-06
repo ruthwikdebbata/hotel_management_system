@@ -2,25 +2,23 @@ doctype html
 html
   head
     title Login – Hotel Management System
-    link(
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    )
-  body
+    //- Swapped Bootstrap for Bootswatch Darkly theme
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css")
+  body.bg-dark.text-light
     include _navbar.pug
 
     .container.mt-5
       .row.justify-content-center
         .col-md-6
-          .card.shadow
-            .card-header.text-center.bg-primary.text-white
+          .card.shadow-lg.border-secondary
+            .card-header.text-center.bg-secondary.text-white
               h3.mb-0 Login
-            .card-body
+            .card-body.bg-dark.text-light
               if error
                 .alert.alert-danger= error
               form(action='/authenticate' method='POST')
                 .mb-3
-                  label.form-label(for='email') Email address
+                  label.form-label.text-light(for='email') Email address
                   input#email.form-control(
                     type='email'
                     name='email'
@@ -28,7 +26,7 @@ html
                     required
                   )
                 .mb-3
-                  label.form-label(for='password') Password
+                  label.form-label.text-light(for='password') Password
                   input#password.form-control(
                     type='password'
                     name='password'
@@ -37,11 +35,12 @@ html
                   )
                 .form-check.mb-3
                   input#remember.form-check-input(type='checkbox', name='remember')
-                  label.form-check-label(for='remember') Remember me
-                button.btn.btn-primary.w-100(type='submit') Login
-            .card-footer.text-center
+                  label.form-check-label.text-light(for='remember') Remember me
+                button.btn.btn-secondary.w-100(type='submit') Login
+            .card-footer.text-center.bg-secondary.text-white
               p.mb-0
                 | Don’t have an account? 
-                a(href='/register') Register here
+                a.text-warning(href='/register') Register here
 
+    //- Optional: Bootswatch JS bundle for interactive components
     script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js')
