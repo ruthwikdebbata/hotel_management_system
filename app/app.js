@@ -5,6 +5,7 @@ const db = require("./services/db");
 const cookieParser = require("cookie-parser");
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const { Booking } = require('./models/booking');
 
 // Create express app
 const app = express();
@@ -187,11 +188,34 @@ app.get('/services', (req, res) => {
     res.render('commingsoon');
 });
 
-// Reservations page
-app.get('/reservations', (req, res) => {
-    res.render('commingsoon');
-});
-
+app.get('/reservations', async (req, res) => {
+    // 1) Require login
+    if (!req.session.uid) {
+      return res.redirect('/login');
+    }
+  
+    const sql = `
+      SELECT b.booking_id,
+             b.check_in, b.check_out, b.total_price, b.status,
+             r.room_number, r.type
+        FROM bookings b
+        JOIN rooms r ON b.room_id = r.room_id
+       WHERE b.user_id = ?
+       ORDER BY b.check_in DESC
+    `;
+  
+    try {
+      // 2) Fetch reservations
+      const reservations = await db.query(sql, [req.session.uid]);
+  
+      // 3) Render the Pug template
+      res.render('reservations', { reservations });
+    } catch (err) {
+      console.error('Error loading reservations:', err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+  
 // Goodbye route
 app.get('/goodbye', (req, res) => {
     res.send('Goodbye world!');
@@ -201,6 +225,143 @@ app.get('/goodbye', (req, res) => {
 app.get('/hello/:name', (req, res) => {
     res.send(`Hello ${req.params.name}`);
 });
+
+
+
+// —─ List all bookings
+app.get('/api/bookings', async (req, res) => {
+  try {
+    const bookings = await Booking.getAll();
+    res.json(bookings);
+  } catch (err) {
+    console.error('Error fetching bookings:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// —─ Get one booking
+app.get('/api/bookings/:id', async (req, res) => {
+  try {
+    const booking = await Booking.getById(req.params.id);
+    if (!booking) return res.status(404).json({ error: 'Booking not found' });
+    res.json(booking);
+  } catch (err) {
+    console.error('Error fetching booking:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// —─ Create a new booking
+app.post('/api/bookings', async (req, res) => {
+  try {
+    const { user_id, room_id, check_in, check_out, total_price, status } = req.body;
+    if (!user_id || !room_id || !check_in || !check_out || !total_price) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const booking = new Booking({ user_id, room_id, check_in, check_out, total_price, status });
+    const id = await booking.create();
+    res.status(201).json({ booking_id: id });
+  } catch (err) {
+    console.error('Error creating booking:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// —─ Update an existing booking
+app.put('/api/bookings/:id', async (req, res) => {
+  try {
+    const existing = await Booking.getById(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Booking not found' });
+
+    const updates = { ...existing, ...req.body };
+    const booking = new Booking(updates);
+    await booking.update();
+    res.json({ message: 'Booking updated' });
+  } catch (err) {
+    console.error('Error updating booking:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// —─ Delete a booking
+app.delete('/api/bookings/:id', async (req, res) => {
+  try {
+    const existing = await Booking.getById(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Booking not found' });
+
+    await Booking.delete(req.params.id);
+    res.json({ message: 'Booking deleted' });
+  } catch (err) {
+    console.error('Error deleting booking:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+// Fetch a room & show the booking form
+app.get('/book/:room_id', (req, res) => {
+    const roomId = req.params.room_id;
+    const sql    = 'SELECT * FROM rooms WHERE room_id = ?';
+  
+    db.query(sql, [roomId])
+      .then(results => {
+        if (results.length === 0) {
+          return res.status(404).send('Room not found');
+        }
+        // Render booking.pug (make sure it's at app/views/booking.pug)
+        res.render('booking', {
+          room: results[0],
+          check_in: '',
+          check_out: '',
+          total_price: ''
+        });
+      })
+      .catch(err => {
+        console.error('Error fetching room for booking:', err);
+        res.status(500).send('Internal Server Error');
+      });
+  });
+  
+
+  app.post('/book/:room_id', async (req, res) => {
+    try {
+      // load room to get price
+      const [room] = await db.query('SELECT * FROM rooms WHERE room_id = ?', [req.params.room_id]);
+      if (!room) return res.status(404).send('Room not found');
+  
+      const { check_in, check_out } = req.body;
+      const inDate  = new Date(check_in);
+      const outDate = new Date(check_out);
+  
+      if (outDate <= inDate) {
+        return res.render('booking', {
+          room,
+          check_in,
+          check_out,
+          total_price: '',
+          error: 'Check-out must be after check-in'
+        });
+      }
+  
+      const nights     = Math.round((outDate - inDate) / (24*60*60*1000));
+      const totalPrice = (nights * parseFloat(room.price)).toFixed(2);
+  
+      const booking = new Booking({
+        user_id:    req.session.uid,     // make sure the user is logged in!
+        room_id:    room.room_id,
+        check_in,
+        check_out,
+        total_price: totalPrice,
+        status:     'Pending'
+      });
+      await booking.create();
+  
+      res.redirect('/reservations');
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
 
 // Start server
 app.listen(3000, () => {

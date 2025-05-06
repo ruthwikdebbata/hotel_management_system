@@ -1,0 +1,56 @@
+doctype html
+html
+  head
+    title My Reservations – Hotel Management System
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
+  body
+    include _navbar.pug
+
+    .container.mt-5
+      h2.text-center.mb-4 My Reservations
+
+      if reservations.length === 0
+        .alert.alert-info.text-center You have no reservations yet.
+        .text-center
+          a.btn.btn-primary(href='/rooms') Browse Rooms
+
+      else
+        .table-responsive
+          table.table.table-striped
+            thead
+              tr
+                th Booking ID
+                th Room #
+                th Type
+                th Check-In
+                th Check-Out
+                th Nights
+                th Total (£)
+                th Status
+                th Actions
+            tbody
+              each b in reservations
+                - const nights = Math.round((new Date(b.check_out) - new Date(b.check_in)) / (1000*60*60*24))
+                tr
+                  td= b.booking_id
+                  td= b.room_number
+                  td= b.type
+                  td= b.check_in
+                  td= b.check_out
+                  td= nights
+                  td £#{b.total_price}
+                  td
+                    if b.status === 'Confirmed'
+                      span.badge.bg-success Confirmed
+                    else if b.status === 'Pending'
+                      span.badge.bg-warning.text-dark Pending
+                    else if b.status === 'Cancelled'
+                      span.badge.bg-danger Cancelled
+                  td
+                    if b.status === 'Pending'
+                      form(action=`/reservations/${b.booking_id}/cancel` method='POST' style='display:inline')
+                        button.btn.btn-sm.btn-danger(type='submit') Cancel
+                    else
+                      em N/A
+
+    script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js')
