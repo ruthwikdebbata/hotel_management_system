@@ -580,7 +580,50 @@ app.get('/book/:room_id', (req, res) => {
       res.status(500).send('Internal Server Error');
     }
   });
+
+
+  // Mark booking as Confirmed
+app.post('/admin/bookings/:id/approve', requireAdmin, async (req, res) => {
+    try {
+      await db.query(
+        'UPDATE bookings SET status = ? WHERE booking_id = ?',
+        ['Confirmed', req.params.id]
+      );
+      res.redirect('/admin/bookings');
+    } catch (err) {
+      console.error('Error approving booking:', err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
   
+  // Mark booking as Cancelled (decline)
+  app.post('/admin/bookings/:id/decline', requireAdmin, async (req, res) => {
+    try {
+      await db.query(
+        'UPDATE bookings SET status = ? WHERE booking_id = ?',
+        ['Cancelled', req.params.id]
+      );
+      res.redirect('/admin/bookings');
+    } catch (err) {
+      console.error('Error declining booking:', err);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+
+  // GET /admin/logout
+app.get('/admin/logout', (req, res) => {
+    // destroy the session and redirect
+    req.session.destroy(err => {
+      if (err) {
+        console.error('Error destroying admin session:', err);
+        // if something goes wrong, still redirect to login
+        return res.redirect('/admin/login');
+      }
+      res.clearCookie('connect.sid');       // optional: clear the cookie
+      res.redirect('/admin/login');
+    });
+  });
+
 // Start server
 app.listen(3000, () => {
     console.log('Server running at http://127.0.0.1:3000/');

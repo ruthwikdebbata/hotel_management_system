@@ -48,10 +48,13 @@ html
                     else if b.status === 'Cancelled'
                       span.badge.bg-danger Cancelled
                   td
-                    //- Example: allow cancelling a pending booking
                     if b.status === 'Pending'
-                      form(action=`/admin/bookings/${b.booking_id}/cancel` method='POST' style='display:inline')
-                        button.btn.btn-sm.btn-danger(type='submit') Cancel
+                      //– Approve
+                      form(action=`/admin/bookings/${b.booking_id}/approve` method='POST' style='display:inline')
+                        button.btn.btn-sm.btn-success(type='submit') Approve
+                      //– Decline
+                      form(action=`/admin/bookings/${b.booking_id}/decline` method='POST' style='display:inline; margin-left:4px')
+                        button.btn.btn-sm.btn-danger(type='submit') Decline
                     else
                       em N/A
 
